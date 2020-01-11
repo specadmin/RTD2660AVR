@@ -66,6 +66,36 @@
 #define OSD_MAX_ROWS_COUNT          20
 #define OSD_MAX_AREAS_IN_ROW        5
 //-----------------------------------------------------------------------------
+// row styles
+#define RS_DOUBLE_HEIGHT    _bits(0)
+#define RS_DOUBLE_WIDTH     _bits(1)
+#define RS_DOUBLE_SIZE      _bits(0,1)
+#define RS_BOLD             _bits(2)
+#define RS_SHADOW_LT        _bits(4)
+#define RS_SHADOW_LB        _bits(4,2)
+#define RS_SHADOW_RT        _bits(4,3)
+#define RS_SHADOW_RB        _bits(4,3,2)
+#define RS_VBI              _bits(6)
+
+// row chars shadows
+#define CHAR_SHADOW_NONE    0
+#define CHAR_SHADOW_LT      4
+#define CHAR_SHADOW_LB      5
+#define CHAR_SHADOW_RT      6
+#define CHAR_SHADOW_RB      7
+
+// area blinking modes
+#define BLINK_NONE          _0
+#define BLINK_TEXT          _bits(0)
+#define BLINK_BACKGROUND    _bits(1)
+#define BLINK_ALL           _bits(0,1)
+
+// area text alignment
+#define ALIGN_LEFT          0          // default alignment
+#define ALIGN_RIGHT         1
+#define ALIGN_CENTER        2
+#define ALIGN_JUSTIFY       3
+//-----------------------------------------------------------------------------
 enum FontDrawings
 {
     MG_BLANK = 1,
@@ -155,37 +185,10 @@ public:
     friend hWnd createWindow(const WindowConfig& config);
     friend hWnd createButton(const ButtonConfig& config);
     void operator=(const hWnd &win);
-    void* operator new(unsigned int size) { return malloc(size); }
+    void* operator new(size_t size) { return malloc(size); }
     void operator delete(void *ptr) { free (ptr); };
     hWnd() {}
 };
-//-----------------------------------------------------------------------------
-// row styles
-#define RS_DOUBLE_HEIGHT    _bits(0)
-#define RS_DOUBLE_WIDTH     _bits(1)
-#define RS_DOUBLE_SIZE      _bits(0,1)
-#define RS_BOLD             _bits(2)
-#define RS_SHADOW_LT        _bits(4)
-#define RS_SHADOW_LB        _bits(4,2)
-#define RS_SHADOW_RT        _bits(4,3)
-#define RS_SHADOW_RB        _bits(4,3,2)
-#define RS_VBI              _bits(6)
-// row chars shadows
-#define CHAR_SHADOW_NONE    0
-#define CHAR_SHADOW_LT      4
-#define CHAR_SHADOW_LB      5
-#define CHAR_SHADOW_RT      6
-#define CHAR_SHADOW_RB      7
-// area blinking modes
-#define BLINK_NONE          _0
-#define BLINK_TEXT          _bits(0)
-#define BLINK_BACKGROUND    _bits(1)
-#define BLINK_ALL           _bits(0,1)
-// area text alignment
-#define ALIGN_LEFT          0          // default alignment
-#define ALIGN_RIGHT         1
-#define ALIGN_CENTER        2
-#define ALIGN_JUSTIFY       3
 //-----------------------------------------------------------------------------
 struct FontRowStyle
 {
