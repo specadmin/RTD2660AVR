@@ -21,7 +21,7 @@ void scaler_read(BYTE address, BYTE count, void* data, bool auto_inc)
 //-----------------------------------------------------------------------------
 BYTE scaler_read(BYTE address)
 {
-    BYTE result=0;
+    BYTE result = 0;
     scaler_read(address, 1, &result);
     return result;
 }
@@ -66,25 +66,25 @@ void scaler_change_bits(BYTE address, BYTE clr_bits, BYTE set_bits)
 //-----------------------------------------------------------------------------
 BYTE scaler_read_port(BYTE port, BYTE address)
 {
-    scaler_write(port-1, address);
+    scaler_write(port - 1, address);
     return scaler_read(port);
 }
 //-----------------------------------------------------------------------------
 void scaler_read_port(BYTE port, BYTE address, BYTE count, void* data)
 {
-    scaler_write(port-1, address);
+    scaler_write(port - 1, address);
     scaler_read(port, count, data, false);
 }
 //-----------------------------------------------------------------------------
 void scaler_write_port(BYTE port, BYTE address, BYTE value)
 {
-    scaler_write(port-1, address);
+    scaler_write(port - 1, address);
     scaler_write(port, 1, &value, false);
 }
 //-----------------------------------------------------------------------------
 void scaler_write_port(BYTE port, BYTE address, BYTE count, const void* data)
 {
-    scaler_write(port-1, address);
+    scaler_write(port - 1, address);
     scaler_write(port, count, data, false);
 }
 //-----------------------------------------------------------------------------
@@ -95,13 +95,13 @@ BYTE scaler_get_port_bit(BYTE port, BYTE address, BYTE bit)
 //-----------------------------------------------------------------------------
 void scaler_set_port_bits(BYTE port, BYTE address, BYTE bits)
 {
-    BYTE tmp=scaler_read_port(port, address);
+    BYTE tmp = scaler_read_port(port, address);
     scaler_write_port(port, address, tmp | bits);
 }
 //-----------------------------------------------------------------------------
 void scaler_clr_port_bits(BYTE port, BYTE address, BYTE bits)
 {
-    BYTE tmp=scaler_read_port(port, address);
+    BYTE tmp = scaler_read_port(port, address);
     scaler_write_port(port, address, tmp & ~bits);
 }
 //-----------------------------------------------------------------------------
