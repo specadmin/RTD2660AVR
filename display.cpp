@@ -11,9 +11,10 @@
 //-----------------------------------------------------------------------------
 #define MODE_VIDEO          0
 #define MODE_BACKGROUND     1
+#define UNKNOWN_MAGIC_WIDTH 640
 #define DISP_H_ACTIVE_S     DISP_H_BLANK_W
-#define DISP_H_ACTIVE_E     (DISP_H_BLANK_W + DISPLAY_WIDTH)
-#define DISP_H_TOTAL_W      (DISP_H_BLANK_W + DISPLAY_WIDTH + DISP_H_PORCH_W)
+#define DISP_H_ACTIVE_E     (DISP_H_BLANK_W + DISPLAY_WIDTH + UNKNOWN_MAGIC_WIDTH)
+#define DISP_H_TOTAL_W      (DISP_H_BLANK_W + DISPLAY_WIDTH + UNKNOWN_MAGIC_WIDTH + DISP_H_PORCH_W)
 #define DISP_V_ACTIVE_S     DISP_V_BLANK_W
 #define DISP_V_ACTIVE_E     (DISP_V_BLANK_W + DISPLAY_HEIGHT)
 #define DISP_V_TOTAL_W      (DISP_V_BLANK_W + DISPLAY_HEIGHT + DISP_V_PORCH_W)
