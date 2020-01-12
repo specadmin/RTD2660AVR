@@ -62,9 +62,7 @@
 #define OSD_FONT_MAX_BLANK_WIDTH    255
 #define OSD_FONT_MIN_CHAR_WIDTH     4
 
-// keep these values minimal to save RAM
-#define OSD_MAX_ROWS_COUNT          20
-#define OSD_MAX_AREAS_IN_ROW        5
+#define OSD_MAX_ROWS_COUNT          24
 //-----------------------------------------------------------------------------
 // row styles
 #define RS_DOUBLE_HEIGHT    _bits(0)
@@ -238,7 +236,7 @@ public:
     BYTE isLast: 1;
     BYTE alignment: 2;
     BYTE ldBlanksCount: 3;                          // leading blank characters count
-    BYTE ldBlanksWidth[DISPLAY_WIDTH / 255 + 1];    // leading blank characters widths
+    BYTE ldLastBlankWidth;                          // last leading blank character width
     void* operator new(size_t count);
     void clear();
     void hide();
@@ -265,14 +263,13 @@ public:
 class CFontRow
 {
 private:
-    BYTE maxAreasCount;
     CFontArea* addArea(WORD left, WORD width, BYTE charsCount, const FontAreaStyle& style);
 public:
-    CFontRow(BYTE count);
     BYTE areasCount;
     WORD nextLeft;      // absolete next area left position in px
     CFontArea** areas;
     OSD_row config;
+    CFontRow();
     void* operator new(size_t count);
     CFontArea* addArea(WORD left, WORD width, const char* str, const FontAreaStyle& style);
     CFontArea* addArea(WORD left, FontAreaStyle& style, BYTE charsCount, char bodyChar = 0, char firstChar = 0, char lastChar = 0);
@@ -285,11 +282,10 @@ private:
     BYTE mapChanged;
     WORD rowsConfigBase;
     WORD charactersBase;
-    CFontRow* row[OSD_MAX_ROWS_COUNT];
+    CFontRow** rows;
     BYTE rowsCount;
     void update();
     WORD size();
-    CFontRow* addRow(BYTE maxAreasCount, BYTE height, const FontRowStyle& style);
 public:
     CFontMap();
     CFontMap(BYTE _id);

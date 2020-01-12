@@ -53,15 +53,15 @@ __inline void OSD_write(OSD_address address, const BYTE mode, const BYTE count, 
 /******************************************************************************
 ********************************* class CFont *********************************
 ******************************************************************************/
-void* CFont::operator new(size_t count)
+void* CFont::operator new(size_t size)
 {
-    return malloc(sizeof(CFont) * count);
+    return malloc(size);
 }
 //-----------------------------------------------------------------------------
 CFont::CFont(BYTE _charsCount, char fChar)
 {
     charsCount = _charsCount;
-    chWidth = (BYTE*) malloc(charsCount);
+    chWidth = (BYTE*) malloc(_charsCount);
     firstChar = fChar;
 }
 
@@ -226,12 +226,14 @@ CFontMap::CFontMap()
 {
     // constructor for standby font maps
     id = -1;
+    rows = NULL;
     rowsCount = 0;
 }
 //-----------------------------------------------------------------------------
 CFontMap::CFontMap(BYTE _id)
 {
     id = _id;
+    rows = NULL;
     rowsCount = 0;
     mapChanged = 1;
     rowsConfigBase = _OSD_FONT_BASE_ADDR_1000 + (OSD_MAX_ROWS_COUNT + 1) * id;
@@ -242,7 +244,7 @@ __inline WORD CFontMap::size()
     WORD size = 0;
     for(BYTE i=0; i < rowsCount; i++)
     {
-        size += row[i]->config.len;
+        size += rows[i]->config.len;
     }
     return size;
 }
@@ -276,7 +278,7 @@ void CFontMap::update()
     WORD rowBaseAddress = charactersBase;
     for(BYTE i = 0; i<rowsCount; i++)
     {
-        pRow = row[i];
+        pRow = rows[i];
         for(BYTE k = 0; k < pRow->areasCount; k++)
         {
             pArea = pRow->areas[k];
@@ -291,11 +293,18 @@ void CFontMap::update()
                 pArea->address = rowBaseAddress + pArea->ldBlanksCount;
             }
 
-            // put leading blank characters
-            for(BYTE j = 0; j < pArea->ldBlanksCount; j++)
+            if(pArea->ldBlanksCount)
             {
+                // put leading blank characters
+                BYTE j = 0;
                 blank.color = 0;    // 0 = transparent
-                blank.width = pArea->ldBlanksWidth[j] - (pRow->config.tracking << pRow->config.double_width);
+                for(; j < (pArea->ldBlanksCount - 1); j++)
+                {
+                    blank.width = 255 - (pRow->config.tracking << pRow->config.double_width);
+                    blank.width >>= pRow->config.double_width;    // double width doubles space width too
+                    OSD_write(pArea->address - j - 1, _OSD_BYTE_ALL, 3, blank);
+                }
+                blank.width = pArea->ldLastBlankWidth - (pRow->config.tracking << pRow->config.double_width);
                 blank.width >>= pRow->config.double_width;    // double width doubles space width too
                 OSD_write(pArea->address - j - 1, _OSD_BYTE_ALL, 3, blank);
             }
@@ -319,7 +328,7 @@ void CFontMap::update()
     mapChanged = 0;
 }
 //-----------------------------------------------------------------------------
-__inline CFontRow* CFontMap::addRow(BYTE maxAreasCount, BYTE height, const FontRowStyle& style)
+CFontRow* CFontMap::addRow(BYTE height, const FontRowStyle& style)
 {
     if(rowsCount >= OSD_MAX_ROWS_COUNT)
     {
@@ -327,8 +336,13 @@ __inline CFontRow* CFontMap::addRow(BYTE maxAreasCount, BYTE height, const FontR
         DVAR(OSD_MAX_ROWS_COUNT);
         halt();
     }
-    CFontRow* newRow = new CFontRow(maxAreasCount);
-    row[rowsCount] = newRow;
+    if(style.doubleHeight || style.doubleSize)
+    {
+        height = height / 2;
+    }
+    CFontRow* newRow = new CFontRow();
+    rows = (CFontRow**) realloc(rows, sizeof(CFontRow*) * (rowsCount + 1));
+    rows[rowsCount++] = newRow;
     newRow->areasCount = 0;
     newRow->config.len = 0;
     if(style.doubleHeight || style.doubleSize)
@@ -347,18 +361,8 @@ __inline CFontRow* CFontMap::addRow(BYTE maxAreasCount, BYTE height, const FontR
     newRow->config.height = (height > 32) ? 31 : height - 1;
     newRow->config.VBI_enabled = style.VBI_enabled ? 1 : 0;
     newRow->config.configured = 1;
-    rowsCount++;
     mapChanged = 1;
     return newRow;
-}
-//-----------------------------------------------------------------------------
-CFontRow* CFontMap::addRow(BYTE height, const FontRowStyle& style)
-{
-    if(style.doubleHeight || style.doubleSize)
-    {
-        height = height / 2;
-    }
-    return addRow(OSD_MAX_AREAS_IN_ROW, height, style);
 }
 //-----------------------------------------------------------------------------
 void CFontMap::addEmptyRow(WORD height)
@@ -367,18 +371,18 @@ void CFontMap::addEmptyRow(WORD height)
     style.doubleHeight = true;
     while(height > 64)
     {
-        addRow(0, 32, style);
+        addRow(32, style);
         height -= 64;
     }
     style.doubleHeight = false;
     while(height > 32)
     {
-        addRow(0, 32, style);
+        addRow(32, style);
         height -= 32;
     }
     if(height > 0)
     {
-        addRow(0, (BYTE) height, style);
+        addRow((BYTE) height, style);
     }
 }
 
@@ -387,17 +391,16 @@ void CFontMap::addEmptyRow(WORD height)
 /******************************************************************************
 ******************************** class CFontRow *******************************
 ******************************************************************************/
-CFontRow::CFontRow(BYTE count)
+CFontRow::CFontRow()
 {
-    maxAreasCount = count;
-    areas = (CFontArea**) malloc(sizeof(CFontArea*) * count);
+    areas = NULL;
     areasCount = 0;
 }
 //-----------------------------------------------------------------------------
-void* CFontRow::operator new(size_t)
+void* CFontRow::operator new(size_t size)
 {
-    void* ptr = malloc(sizeof(CFontRow));
-    memset(ptr, 0, sizeof(CFontRow));
+    void* ptr = malloc(size);
+    memset(ptr, 0, size);
     return ptr;
 }
 //-----------------------------------------------------------------------------
@@ -412,12 +415,6 @@ CFontArea* CFontRow::addArea(WORD left, WORD width, BYTE charsCount, const FontA
                          ^
                          start pos
 */
-    if(areasCount >= maxAreasCount)
-    {
-        DSTR("CFontRow::addArea - maximum areas count exceeded");
-        DVAR(maxAreasCount);
-        halt();
-    }
     if(width==0)
     {
         // minimum width prevents mulfunctions
@@ -429,7 +426,8 @@ CFontArea* CFontRow::addArea(WORD left, WORD width, BYTE charsCount, const FontA
         charsCount = 1;
     }
     CFontArea* newArea = new CFontArea;
-    areas[areasCount] = newArea;
+    areas = (CFontArea**) realloc(areas, sizeof(CFontArea*) * (areasCount + 1));
+    areas[areasCount++] = newArea;
     WORD offset = 0;
     if(left < nextLeft)
     {
@@ -459,18 +457,17 @@ CFontArea* CFontRow::addArea(WORD left, WORD width, BYTE charsCount, const FontA
     default:
         newArea->len = charsCount + 1;  // + prefix or suffix
     }
-    newArea->ldBlanksCount=0;
+    newArea->ldBlanksCount = 0;
     while(offset)
     {
         if(offset>255)
         {
-            newArea->ldBlanksWidth[newArea->ldBlanksCount] = 255;
             offset -= 255;
         }
         else
         {
-            newArea->ldBlanksWidth[newArea->ldBlanksCount] = offset;
-            offset=0;
+            newArea->ldLastBlankWidth = offset;
+            offset = 0;
         }
         newArea->ldBlanksCount++;
     }
@@ -490,7 +487,6 @@ CFontArea* CFontRow::addArea(WORD left, WORD width, BYTE charsCount, const FontA
     newArea->visible = style.visible;
     newArea->ch1.color = style.fontColor;
     newArea->ch1.bgColor = style.bgColor;
-    areasCount++;
     return newArea;
 }
 //-----------------------------------------------------------------------------
@@ -542,10 +538,10 @@ CFontArea* CFontRow::addArea(WORD left, FontAreaStyle& style, BYTE charsCount, c
 /******************************************************************************
 ******************************* class CFontArea *******************************
 ******************************************************************************/
-void* CFontArea::operator new(size_t)
+void* CFontArea::operator new(size_t size)
 {
-    void* ptr = malloc(sizeof(CFontArea));
-    memset(ptr, 0, sizeof(CFontArea));
+    void* ptr = malloc(size);
+    memset(ptr, 0, size);
     return ptr;
 }
 //-----------------------------------------------------------------------------

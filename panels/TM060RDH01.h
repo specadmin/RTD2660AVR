@@ -1,7 +1,7 @@
 #ifndef TM060RDH01_H
 #define TM060RDH01_H
 //-----------------------------------------------------------------------------
-#define DISPLAY_WIDTH       1440 //800     // pixels
+#define DISPLAY_WIDTH       800     // pixels
 #define DISPLAY_HEIGHT      480     // pixels
 
 // display connection type
