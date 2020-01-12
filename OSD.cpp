@@ -174,7 +174,7 @@ void COSD::setTransparency(BYTE value, BlendingType type)
     {
         BYTE tmp;
         OSD_read(_OSD_CONTROL3_003, _OSD_BYTE_1, 1, &tmp);
-        tmp = (tmp & ~(type << 2)) | (type << 2);
+        tmp = (tmp & 0xF3) | (type << 2);
         OSD_write(_OSD_CONTROL3_003, _OSD_BYTE_1, 1, &tmp);
     }
 }
