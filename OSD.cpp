@@ -782,22 +782,40 @@ __inline void setWindowGradient(OSD_window_data &data, WORD gradientStyle, BYTE 
     }
 }
 //-----------------------------------------------------------------------------
-hWnd& createWindow(const WindowConfig& config)
+hWnd* createWindow(const WindowConfig& config)
 {
     hWnd* wnd = new hWnd;
+    wnd->configure(config);
+    return wnd;
+}
+//-----------------------------------------------------------------------------
+hWnd* createButton(const ButtonConfig& config)
+{
+    hWnd* wnd = new hWnd;
+    wnd->configure(config);
+    return wnd;
+}
+
+
+
+/******************************************************************************
+********************************* class hWnd **********************************
+******************************************************************************/
+void hWnd::configure(const WindowConfig& config)
+{
     WORD width = config.width;
     WORD height = config.height;
-    wnd->data.bodyColor = config.bodyColor;
+    data.bodyColor = config.bodyColor;
     if(config.shadowType)
     {
         // window with shadow
-        wnd->data.shadow_width = config.shadowWidth - 1;
-        wnd->data.shadow_height = config.shadowHeight - 1;
+        data.shadow_width = config.shadowWidth - 1;
+        data.shadow_height = config.shadowHeight - 1;
         width -= config.shadowWidth;
         height -= config.shadowHeight;
-        wnd->data.shadow_color = config.shadowColor;
-        wnd->data.style = config.shadowType;
-        wnd->data.enabled = config.visible;
+        data.shadow_color = config.shadowColor;
+        data.style = config.shadowType;
+        data.enabled = config.visible;
     }
     else
     {
@@ -805,7 +823,7 @@ hWnd& createWindow(const WindowConfig& config)
         {
             // window with border
             BYTE borderWidth = config.borderWidth;
-            wnd->data.border_color = config.borderColor;
+            data.border_color = config.borderColor;
             if((borderWidth * 2) > config.width)
             {
                 borderWidth = config.width / 2;
@@ -814,73 +832,67 @@ hWnd& createWindow(const WindowConfig& config)
             {
                 borderWidth = config.height / 2;
             }
-            wnd->data.border_width = borderWidth - 1;
-            wnd->data.border_height = borderWidth - 1;
+            data.border_width = borderWidth - 1;
+            data.border_height = borderWidth - 1;
             width -= borderWidth;
             height -= borderWidth;
             if(config.bodyColor == 0)
             {
                 // transparent window with borders
-                wnd->data.btnColor1 = config.borderColor;
-                wnd->data.btnColor2 = config.borderColor;
-                wnd->data.style = WS_BUTTON;
-                wnd->data.enabled = 0;
+                data.btnColor1 = config.borderColor;
+                data.btnColor2 = config.borderColor;
+                data.style = WS_BUTTON;
+                data.enabled = 0;
             }
             else
             {
-                wnd->data.style = WS_BORDER;
-                wnd->data.enabled = config.visible;
+                data.style = WS_BORDER;
+                data.enabled = config.visible;
             }
         }
         else
         {
-            wnd->plainStyle = true;
-            wnd->data.style = WS_PLAIN;
-            wnd->data.enabled = config.visible;
+            plainStyle = true;
+            data.style = WS_PLAIN;
+            data.enabled = config.visible;
         }
     }
-    setWindowGradient(wnd->data, config.gradientStyle, config.gradientStep);
-    wnd->data.X1 = config.left;
-    wnd->data.X2 = config.left + width;
-    wnd->data.Y1 = config.top;
-    wnd->data.Y2 = config.top + height;
-    return *wnd;
+    setWindowGradient(data, config.gradientStyle, config.gradientStep);
+    data.X1 = config.left;
+    data.X2 = config.left + width;
+    data.Y1 = config.top;
+    data.Y2 = config.top + height;
+    apply();
 }
 //-----------------------------------------------------------------------------
-hWnd& createButton(const ButtonConfig& config)
+void hWnd::configure(const ButtonConfig& config)
 {
-    hWnd* wnd = new hWnd;
     BYTE depth = config.depth;
-    wnd->data.bodyColor = config.colorSet;
+    data.bodyColor = config.colorSet;
     if(config.pushed)
     {
-        wnd->data.btnColor1 = config.colorSet + 2;
-        wnd->data.btnColor2 = config.colorSet + 1;
-        wnd->pushed = true;
+        data.btnColor1 = config.colorSet + 2;
+        data.btnColor2 = config.colorSet + 1;
+        pushed = true;
     }
     else
     {
-        wnd->data.btnColor1 = config.colorSet + 1;
-        wnd->data.btnColor2 = config.colorSet + 2;
-        wnd->pushed = false;
+        data.btnColor1 = config.colorSet + 1;
+        data.btnColor2 = config.colorSet + 2;
+        pushed = false;
     }
-    setWindowGradient(wnd->data, config.gradientStyle, config.gradientStep);
-    wnd->data.border_width = depth - 1;
-    wnd->data.border_height = depth - 1;
-    wnd->data.X1 = config.left;
-    wnd->data.X2 = config.left + config.width - depth;
-    wnd->data.Y1 = config.top;
-    wnd->data.Y2 = config.top + config.height - depth;
-    wnd->data.style = WS_BUTTON;
-    wnd->data.enabled = config.visible;
-    return *wnd;
+    setWindowGradient(data, config.gradientStyle, config.gradientStep);
+    data.border_width = depth - 1;
+    data.border_height = depth - 1;
+    data.X1 = config.left;
+    data.X2 = config.left + config.width - depth;
+    data.Y1 = config.top;
+    data.Y2 = config.top + config.height - depth;
+    data.style = WS_BUTTON;
+    data.enabled = config.visible;
+    apply();
 }
-
-
-
-/******************************************************************************
-********************************* class hWnd **********************************
-******************************************************************************/
+//-----------------------------------------------------------------------------
 void hWnd::setAddress(WORD addr)
 {
     address = addr;
@@ -903,10 +915,10 @@ void hWnd::hide()
     apply();
 }
 //-----------------------------------------------------------------------------
-void hWnd::operator=(const hWnd& win)
+void hWnd::operator=(const hWnd* win)
 {
     OSD_address addr = address;
-    memcpy(this, &win, sizeof(hWnd));
+    memcpy(this, win, sizeof(hWnd));
     address = addr;
     apply();
 }

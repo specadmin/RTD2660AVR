@@ -182,9 +182,11 @@ public:
     void hide();
     void pushButton();
     void releaseButton();
-    friend hWnd& createWindow(const WindowConfig& config);
-    friend hWnd& createButton(const ButtonConfig& config);
-    void operator=(const hWnd &win);
+    void configure(const WindowConfig& config);
+    void configure(const ButtonConfig& config);
+    friend hWnd* createWindow(const WindowConfig& config);
+    friend hWnd* createButton(const ButtonConfig& config);
+    void operator=(const hWnd* win);
     void* operator new(size_t size) { return malloc(size); }
     void operator delete(void *ptr) { free (ptr); };
     hWnd() {}
@@ -315,7 +317,7 @@ public:
     hWnd window[8];
 };
 //-----------------------------------------------------------------------------
-hWnd& createWindow(const WindowConfig& config);
-hWnd& createButton(const ButtonConfig& config);
+hWnd* createWindow(const WindowConfig& config);
+hWnd* createButton(const ButtonConfig& config);
 //-----------------------------------------------------------------------------
 #endif
