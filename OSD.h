@@ -160,6 +160,8 @@ struct ButtonConfig
     WORD height = 100;
     BYTE colorSet;
     BYTE depth = 5;
+    WORD gradientStyle = 0;
+    BYTE gradientStep = 4;
     bool pushed = false;
     bool visible = true;
 };
@@ -180,12 +182,12 @@ public:
     void hide();
     void pushButton();
     void releaseButton();
-    friend hWnd createWindow(const WindowConfig& config);
-    friend hWnd createButton(const ButtonConfig& config);
+    friend hWnd& createWindow(const WindowConfig& config);
+    friend hWnd& createButton(const ButtonConfig& config);
     void operator=(const hWnd &win);
     void* operator new(size_t size) { return malloc(size); }
     void operator delete(void *ptr) { free (ptr); };
-    hWnd() { memset(this, 0, sizeof(hWnd)); }
+    hWnd() {}
 };
 //-----------------------------------------------------------------------------
 struct FontRowStyle
@@ -313,7 +315,7 @@ public:
     hWnd window[8];
 };
 //-----------------------------------------------------------------------------
-hWnd createWindow(const WindowConfig& config);
-hWnd createButton(const ButtonConfig& config);
+hWnd& createWindow(const WindowConfig& config);
+hWnd& createButton(const ButtonConfig& config);
 //-----------------------------------------------------------------------------
 #endif

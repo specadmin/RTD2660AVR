@@ -776,9 +776,13 @@ __inline void setWindowGradient(OSD_window_data &data, WORD gradientStyle, BYTE 
             data.gradientStep_H = 0;
         }
     }
+    else
+    {
+        data.gradientEnabled = 0;
+    }
 }
 //-----------------------------------------------------------------------------
-hWnd createWindow(const WindowConfig& config)
+hWnd& createWindow(const WindowConfig& config)
 {
     hWnd* wnd = new hWnd;
     WORD width = config.width;
@@ -835,6 +839,7 @@ hWnd createWindow(const WindowConfig& config)
             wnd->data.enabled = config.visible;
         }
     }
+    setWindowGradient(wnd->data, config.gradientStyle, config.gradientStep);
     wnd->data.X1 = config.left;
     wnd->data.X2 = config.left + width;
     wnd->data.Y1 = config.top;
@@ -842,7 +847,7 @@ hWnd createWindow(const WindowConfig& config)
     return *wnd;
 }
 //-----------------------------------------------------------------------------
-hWnd createButton(const ButtonConfig& config)
+hWnd& createButton(const ButtonConfig& config)
 {
     hWnd* wnd = new hWnd;
     BYTE depth = config.depth;
@@ -859,6 +864,7 @@ hWnd createButton(const ButtonConfig& config)
         wnd->data.btnColor2 = config.colorSet + 2;
         wnd->pushed = false;
     }
+    setWindowGradient(wnd->data, config.gradientStyle, config.gradientStep);
     wnd->data.border_width = depth - 1;
     wnd->data.border_height = depth - 1;
     wnd->data.X1 = config.left;
@@ -897,7 +903,7 @@ void hWnd::hide()
     apply();
 }
 //-----------------------------------------------------------------------------
-void hWnd::operator=(const hWnd &win)
+void hWnd::operator=(const hWnd& win)
 {
     OSD_address addr = address;
     memcpy(this, &win, sizeof(hWnd));
