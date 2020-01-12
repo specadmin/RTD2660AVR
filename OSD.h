@@ -182,8 +182,8 @@ public:
     void hide();
     void pushButton();
     void releaseButton();
-    void configure(const WindowConfig& config);
-    void configure(const ButtonConfig& config);
+    hWnd* configure(const WindowConfig& config);
+    hWnd* configure(const ButtonConfig& config);
     friend hWnd* createWindow(const WindowConfig& config);
     friend hWnd* createButton(const ButtonConfig& config);
     void operator=(const hWnd* win);

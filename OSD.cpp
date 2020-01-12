@@ -440,7 +440,6 @@ CFontArea* CFontRow::addArea(WORD left, WORD width, BYTE charsCount, const FontA
         offset = left - nextLeft;
     }
     nextLeft = left + width * (config.double_width + 1);    // a start position for the next area
-    newArea->str = (char*) malloc(charsCount + 1);
     newArea->rowConfig = &config;
     newArea->width = width;
     newArea->alignment = style.alignment;
@@ -493,7 +492,7 @@ CFontArea* CFontRow::addArea(WORD left, WORD width, BYTE charsCount, const FontA
 CFontArea* CFontRow::addArea(WORD left, WORD width, const char* str, const FontAreaStyle& style)
 {
     CFontArea* area = addArea(left, width, strlen(str), style);
-    strcpy(area->str, str);
+    area->str = (char*) str;
     area->isStatic = 1;
     return area;
 }
@@ -512,6 +511,7 @@ CFontArea* CFontRow::addArea(WORD left, FontAreaStyle& style, BYTE charsCount, c
         width = width - font->chWidth[(BYTE)bodyChar - font->firstChar] + font->chWidth[(BYTE)lastChar - font->firstChar];
     }
     CFontArea* area = addArea(left, width, charsCount, style);
+    area->str = (char*) malloc(charsCount + 1);
     if(bodyChar)
     {
         memset(area->str, bodyChar, charsCount);
@@ -561,11 +561,7 @@ void CFontArea::put(char ch, BYTE count)
 //-----------------------------------------------------------------------------
 void CFontArea::print(const char *_str)
 {
-    if(_str != str)
-    {
-        // save the string for future use
-        strcpy(str, _str);
-    }
+    str = (char*) _str;
     if(!address)
     {
         // the area was not initialized yet, so we can't write to OSD
@@ -801,7 +797,7 @@ hWnd* createButton(const ButtonConfig& config)
 /******************************************************************************
 ********************************* class hWnd **********************************
 ******************************************************************************/
-void hWnd::configure(const WindowConfig& config)
+hWnd* hWnd::configure(const WindowConfig& config)
 {
     WORD width = config.width;
     WORD height = config.height;
@@ -863,9 +859,10 @@ void hWnd::configure(const WindowConfig& config)
     data.Y1 = config.top;
     data.Y2 = config.top + height;
     apply();
+    return this;
 }
 //-----------------------------------------------------------------------------
-void hWnd::configure(const ButtonConfig& config)
+hWnd* hWnd::configure(const ButtonConfig& config)
 {
     BYTE depth = config.depth;
     data.bodyColor = config.colorSet;
@@ -891,6 +888,7 @@ void hWnd::configure(const ButtonConfig& config)
     data.style = WS_BUTTON;
     data.enabled = config.visible;
     apply();
+    return this;
 }
 //-----------------------------------------------------------------------------
 void hWnd::setAddress(WORD addr)
