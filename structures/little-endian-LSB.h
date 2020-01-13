@@ -807,7 +807,7 @@ struct OSD_control0
             BYTE: 8;
             BYTE: 8;
             BYTE enabled: 1;
-            BYTE chAlignment: 2;
+            BYTE gliphAlignment: 2;
             BYTE: 5;
         };
     };

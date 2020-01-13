@@ -150,6 +150,7 @@ void COSD::setOrigin(WORD X_start, WORD Y_start)
     #define _UNKNOWN_ORIGIN_MAGIC_Y 2
     control0.X_delay = X_start / 4 + _UNKNOWN_ORIGIN_MAGIC_X;
     control0.Y_delay = Y_start + DISP_V_BLANK_W - _UNKNOWN_ORIGIN_MAGIC_Y;
+    control0.gliphAlignment = _GLIPH_ALIGNMENT_LEFT;
     OSD_write(_OSD_CONTROL0_000, _OSD_BYTE_ALL, 3, control0);
 }
 //-----------------------------------------------------------------------------

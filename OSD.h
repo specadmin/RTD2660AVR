@@ -32,6 +32,10 @@
 #define _OSD_ROLL_UP                    0
 #define _OSD_POP_ON                     1
 //-----------------------------------------------------------------------------
+#define _GLIPH_ALIGNMENT_CENTER         0
+#define _GLIPH_ALIGNMENT_LEFT           1
+#define _GLIPH_ALIGNMENT_RIGHT          2
+//-----------------------------------------------------------------------------
 
 #define GRAD_NONE                       0
 #define GRAD_BLUE_LESS                  0x01    // B-
