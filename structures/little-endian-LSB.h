@@ -824,13 +824,21 @@ struct OSD_control0
 struct OSD_control3
 {
     // byte 0
-    BYTE blendColor: 4;
-    BYTE syncSource: 1;
-    BYTE win7Func: 2;
-    BYTE colorBlending: 1;
+    union
+    {
+        BYTE byte0;
+        struct
+        {
+            BYTE blendColor: 4;
+            BYTE syncSource: 1;
+            BYTE win7Func: 2;
+            BYTE colorBlending: 1;
+        };
+    };
     // byte 1
     union
     {
+        BYTE byte1;
         struct
         {
             BYTE wholeDoubleHeight: 1;
@@ -845,13 +853,26 @@ struct OSD_control3
         };
     };
     // byte 2
-    BYTE rotation: 1;
-    BYTE blinkingAllowed: 1;
-    BYTE hwRotationEnabled: 1;
-    BYTE bufReset: 1;
-    BYTE bufBusy: 1;
-    BYTE bufEmpty: 1;
-    BYTE fontSwap: 2;
+    union
+    {
+        BYTE byte2;
+        struct
+        {
+            BYTE rotation: 1;
+            BYTE blinkingAllowed: 1;
+            BYTE hwRotationEnabled: 1;
+            BYTE bufReset: 1;
+            BYTE bufBusy: 1;
+            BYTE bufEmpty: 1;
+            BYTE fontSwap: 2;
+        };
+    };
+    OSD_control3()
+    {
+        byte0 = 0;
+        byte1 = 0;
+        byte2 = 0;
+    }
     operator BYTE*()
     {
         return (BYTE*) this;
