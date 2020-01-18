@@ -599,7 +599,7 @@ void CFontArea::output(const char *_str)
     case ALIGN_LEFT:
         addr = address;
         textAddr = address;
-        lastAddr = address + len -1;
+        lastAddr = address + len - 1;
         break;
     case ALIGN_JUSTIFY:
         addr = address;
@@ -689,7 +689,7 @@ void CFontArea::output(const char *_str)
 //-----------------------------------------------------------------------------
 void CFontArea::print(const char *_str)
 {
-    str = (char*) realloc(str, sizeof(_str) + 1);
+    str = (char*) realloc(str, strlen(_str) + 1);
     strcpy(str, _str);
     output((const char*)str);
 }
