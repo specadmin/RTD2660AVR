@@ -170,7 +170,30 @@ struct ButtonConfig
     bool visible = true;
 };
 //-----------------------------------------------------------------------------
+struct FontRowStyle
+{
+    BYTE VBI_enabled = 0;
+    BYTE charBold = 0;
+    BYTE charShadow = 0;
+    BYTE doubleWidth = 0;
+    BYTE doubleHeight = 0;
+    BYTE doubleSize = 0;
+    BYTE tracking = 0;
+};
+//-----------------------------------------------------------------------------
+struct FontAreaStyle
+{
+    BYTE alignment = ALIGN_LEFT;
+    BYTE bgColor = 0;
+    BYTE fontColor = 1;
+    BYTE visible = 1;
+    BYTE underlined = 0;
+    BYTE blinkMode = BLINK_NONE;
+    BYTE fontFace;
+};
+//-----------------------------------------------------------------------------
 class COSD;
+class CFontMap;
 //-----------------------------------------------------------------------------
 class hWnd
 {
@@ -196,28 +219,6 @@ public:
     hWnd() {}
 };
 //-----------------------------------------------------------------------------
-struct FontRowStyle
-{
-    BYTE VBI_enabled = 0;
-    BYTE charBold = 0;
-    BYTE charShadow = 0;
-    BYTE doubleWidth = 0;
-    BYTE doubleHeight = 0;
-    BYTE doubleSize = 0;
-    BYTE tracking = 0;
-};
-//-----------------------------------------------------------------------------
-struct FontAreaStyle
-{
-    BYTE alignment = ALIGN_LEFT;
-    BYTE bgColor = 0;
-    BYTE fontColor = 1;
-    BYTE visible = 1;
-    BYTE underlined = 0;
-    BYTE blinkMode = BLINK_NONE;
-    BYTE fontFace;
-};
-//-----------------------------------------------------------------------------
 class CFont
 {
 public:
@@ -231,6 +232,8 @@ public:
 //-----------------------------------------------------------------------------
 class CFontArea
 {
+private:
+    void output(const char *_str);
 public:
     WORD address;
     OSD_row* rowConfig;
@@ -252,6 +255,7 @@ public:
     void blink();
     void put(char ch, BYTE count = 1);
     void print(const char *_str);
+    friend CFontMap;
 };
 //-----------------------------------------------------------------------------
 class CFontAreaSet

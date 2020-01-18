@@ -314,7 +314,7 @@ void CFontMap::update()
                 // the last area in the row
                 pArea->isLast = 1;
             }
-            pArea->print(pArea->str);
+            pArea->output(pArea->str);
         }
         rowBaseAddress = rowBaseAddress + pRow->config.len;
 
@@ -560,7 +560,7 @@ void CFontArea::put(char ch, BYTE count)
     }
 }
 //-----------------------------------------------------------------------------
-void CFontArea::print(const char *_str)
+void CFontArea::output(const char *_str)
 {
     str = (char*) _str;
     if(!address)
@@ -686,25 +686,32 @@ void CFontArea::print(const char *_str)
     }
 }
 //-----------------------------------------------------------------------------
+void CFontArea::print(const char *_str)
+{
+    str = (char*) realloc(str, sizeof(_str) + 1);
+    strcpy(str, _str);
+    output((const char*)str);
+}
+//-----------------------------------------------------------------------------
 void CFontArea::hide()
 {
     visible = 0;
     ch1.blink = 0;
-    print(str);
+    output(str);
 }
 //-----------------------------------------------------------------------------
 void CFontArea::blink()
 {
     visible = 1;
     ch1.blink = 1;
-    print(str);
+    output(str);
 }
 //-----------------------------------------------------------------------------
 void CFontArea::show()
 {
     visible = 1;
     ch1.blink = 0;
-    print(str);
+    output(str);
 }
 
 
