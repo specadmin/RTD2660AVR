@@ -263,12 +263,11 @@ public:
 //-----------------------------------------------------------------------------
 class CFontAreaSet
 {
-private:
+protected:
     CFontArea** areas;
     BYTE areasCount;
-    BYTE maxAreasInSet;
 public:
-    CFontAreaSet(BYTE count);
+    CFontAreaSet();
     CFontArea* add(CFontArea* area);
     void hide();
     void show();

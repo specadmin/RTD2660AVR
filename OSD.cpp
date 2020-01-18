@@ -720,21 +720,15 @@ void CFontArea::show()
 /******************************************************************************
 ***************************** class CFontAreaSet ******************************
 ******************************************************************************/
-CFontAreaSet::CFontAreaSet(BYTE count)
+CFontAreaSet::CFontAreaSet()
 {
-    maxAreasInSet = count;
-    areas = (CFontArea**) malloc(sizeof(CFontArea*) * count);
+    areas = NULL;
     areasCount = 0;
 }
 //-----------------------------------------------------------------------------
 CFontArea* CFontAreaSet::add(CFontArea* area)
 {
-    if(areasCount >= maxAreasInSet)
-    {
-        DSTR(" CFontAreaSet::add() - maximum areas count exceeded");
-        DVAR(maxAreasInSet);
-        halt();
-    }
+    areas = (CFontArea**) realloc(areas, sizeof(CFontArea*) * (areasCount + 1));
     areas[areasCount++] = area;
     return area;
 }
