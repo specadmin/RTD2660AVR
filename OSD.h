@@ -65,6 +65,7 @@
 #define OSD_FONT_MIN_BLANK_WIDTH    4
 #define OSD_FONT_MAX_BLANK_WIDTH    255
 #define OSD_FONT_MIN_CHAR_WIDTH     4
+#define OSD_FONT_MAX_CHAR_WIDTH     14
 
 #define OSD_MAX_ROWS_COUNT          24
 //-----------------------------------------------------------------------------
@@ -188,6 +189,7 @@ struct FontAreaStyle
     BYTE fontColor = 1;
     BYTE visible = 1;
     BYTE underlined = 0;
+    BYTE tracking = 0;
     BYTE blinkMode = BLINK_NONE;
     BYTE fontFace;
 };
@@ -242,6 +244,7 @@ public:
     char* str;                                      // stored text
     OSD_char_1bit ch1;
     WORD width;
+    BYTE extraTracking;
     BYTE visible: 1;
     BYTE isStatic: 1;
     BYTE isLast: 1;

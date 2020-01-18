@@ -443,6 +443,7 @@ CFontArea* CFontRow::addArea(WORD left, WORD width, BYTE charsCount, const FontA
     nextLeft = left + width * (config.double_width + 1);    // a start position for the next area
     newArea->rowConfig = &config;
     newArea->width = width;
+    newArea->extraTracking = (style.tracking > config.tracking) ? (style.tracking - config.tracking) : 0;   // area tracking can not be less than row tracking
     newArea->alignment = style.alignment;
     newArea->font = registeredFonts[style.fontFace];
     newArea->isLast = 0;
@@ -622,7 +623,7 @@ void CFontArea::output(const char *_str)
         {
             if(!rowConfig->VBI_enabled)
             {
-                ch1.width = font->chWidth[ch1.code];
+                ch1.width = (font->chWidth[ch1.code] + extraTracking) > OSD_FONT_MAX_CHAR_WIDTH ? OSD_FONT_MAX_CHAR_WIDTH : (font->chWidth[ch1.code] + extraTracking);
                 textWidth += (ch1.width + rowConfig->tracking);
             }
             else
