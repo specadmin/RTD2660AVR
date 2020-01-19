@@ -547,20 +547,6 @@ void* CFontArea::operator new(size_t size)
     return ptr;
 }
 //-----------------------------------------------------------------------------
-void CFontArea::put(char ch, BYTE count)
-{
-    WORD addr = address;
-    ch1.code = ch - font->firstChar + font->baseOffset;
-    if(count > len)
-    {
-        count = len;
-    }
-    while(count--)
-    {
-        OSD_write(addr++, _OSD_BYTE_ALL, 3, ch1);
-    }
-}
-//-----------------------------------------------------------------------------
 void CFontArea::output(const char *_str)
 {
     str = (char*) _str;

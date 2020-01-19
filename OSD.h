@@ -256,7 +256,6 @@ public:
     void hide();
     void show();
     void blink();
-    void put(char ch, BYTE count = 1);
     void print(const char *_str);
     friend CFontMap;
 };
