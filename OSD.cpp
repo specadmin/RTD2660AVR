@@ -421,11 +421,6 @@ CFontArea* CFontRow::addArea(WORD left, WORD width, BYTE charsCount, const FontA
         // minimum width prevents mulfunctions
         width = 1;
     }
-    if(charsCount==0)
-    {
-        // minimum chars count prevents mulfunctions
-        charsCount = 1;
-    }
     CFontArea* newArea = new CFontArea;
     areas = (CFontArea**) realloc(areas, sizeof(CFontArea*) * (areasCount + 1));
     areas[areasCount++] = newArea;
@@ -502,7 +497,7 @@ CFontArea* CFontRow::addArea(WORD left, WORD width, const char* str, const FontA
 CFontArea* CFontRow::addArea(WORD left, FontAreaStyle& style, BYTE charsCount, char bodyChar, char firstChar, char lastChar)
 {
     CFont *font = registeredFonts[style.fontFace];
-    WORD width = bodyChar > 0 ? charsCount * (font->chWidth[(BYTE)bodyChar - font->firstChar] + config.tracking) : charsCount * (OSD_FONT_CHAR_WIDTH + config.tracking);
+    WORD width = charsCount * (font->chWidth[(BYTE)bodyChar - font->firstChar] + config.tracking);
     style.alignment = ALIGN_JUSTIFY;    // alignment could not be applied in this wrapper
     if(firstChar)
     {
@@ -558,8 +553,12 @@ void CFontArea::output(const char *_str)
     const char* ch = _str;
     WORD addr;
     WORD textAddr;
-    WORD lastAddr;
+    BYTE prefixLen = 0;
+    BYTE suffixLen = 0;
     WORD textWidth = 0;
+    BYTE prefixWidth = 0;
+    BYTE suffixWidth = 0;
+
     OSD_blank blank;
     if(visible)
     {
@@ -573,35 +572,18 @@ void CFontArea::output(const char *_str)
     switch(alignment)
     {
     case ALIGN_CENTER:
-        addr = address + 1;
         textAddr = address + (len - strlen(str)) / 2;
-        lastAddr = address + len - 1;
         break;
     case ALIGN_RIGHT:
-        addr = address + 1;
         textAddr = address + len - strlen(str);
-        lastAddr = address + len;
         break;
     case ALIGN_LEFT:
-        addr = address;
-        textAddr = address;
-        lastAddr = address + len - 1;
-        break;
     case ALIGN_JUSTIFY:
-        addr = address;
         textAddr = address;
-        lastAddr = address + len;
     }
 
-    // fill prefix empty characters with blanks, if needed
-    while(addr < textAddr)
-    {
-        blank.width = 12 >> rowConfig->double_width;            // double width doubles space width too
-        textWidth += (12 + rowConfig->tracking);
-        OSD_write(addr++, _OSD_BYTE_ALL, 3, blank);
-    }
-
-    // fill string characters
+    // fill string characters and calculate real text width
+    WORD ptr = textAddr;
     while(*ch)
     {
         ch1.code = *ch - font->firstChar;
@@ -610,67 +592,101 @@ void CFontArea::output(const char *_str)
             if(!rowConfig->VBI_enabled)
             {
                 ch1.width = (font->chWidth[ch1.code] + extraTracking) > OSD_FONT_MAX_CHAR_WIDTH ? OSD_FONT_MAX_CHAR_WIDTH : (font->chWidth[ch1.code] + extraTracking);
-                textWidth += (ch1.width + rowConfig->tracking);
+                textWidth += (ch1.width + rowConfig->tracking) << rowConfig->double_width;
             }
             else
             {
-                textWidth += (12 + rowConfig->tracking);
+                textWidth += (12 + extraTracking + rowConfig->tracking) << rowConfig->double_width;
             }
             ch1.code += font->baseOffset;
-            OSD_write(addr++, _OSD_BYTE_ALL, 3, ch1);
+            OSD_write(ptr++, _OSD_BYTE_ALL, 3, ch1);
         }
         else
         {
-            blank.width = font->chWidth[ch1.code];
-            textWidth += (blank.width + rowConfig->tracking);
-            OSD_write(addr++, _OSD_BYTE_ALL, 3, blank);
+            blank.width = (font->chWidth[ch1.code] + extraTracking) > OSD_FONT_MAX_CHAR_WIDTH ? OSD_FONT_MAX_CHAR_WIDTH : (font->chWidth[ch1.code] + extraTracking);
+            textWidth += (blank.width + rowConfig->tracking) << rowConfig->double_width;
+            OSD_write(ptr++, _OSD_BYTE_ALL, 3, blank);
         }
         ch++;
     }
 
-    // fill suffix empty characters with blanks, if needed
-    while(addr < lastAddr)
+    switch(alignment)
     {
-        blank.width = 12 >> rowConfig->double_width;            // double width doubles space width too
-        textWidth += (12 + rowConfig->tracking);
-        OSD_write(addr++, _OSD_BYTE_ALL, 3, blank);
+    case ALIGN_CENTER:
+        prefixLen = (len - strlen(str)) / 2;
+        prefixWidth = (width - textWidth) / 2 + (rowConfig->tracking << rowConfig->double_width);
+        prefixWidth = (prefixWidth >> rowConfig->double_width) << rowConfig->double_width;          // round down to even value
+        suffixLen = len - prefixLen - strlen(str);
+        suffixWidth = width - prefixWidth - textWidth;
+        break;
+    case ALIGN_RIGHT:
+        prefixLen = len - strlen(str);
+        prefixWidth = width - textWidth;
+        break;
+    case ALIGN_LEFT:
+        suffixLen = len - strlen(str);
+        suffixWidth = width - textWidth;
+        break;
     }
+    addr = address;
+    textAddr = address + prefixLen;
 
-    textWidth <<= rowConfig->double_width;
-    if((width - textWidth) > OSD_FONT_MIN_BLANK_WIDTH)
+    // prefix
+    if(prefixLen)
     {
-        // prefix
-        if(alignment == ALIGN_CENTER || alignment == ALIGN_RIGHT)
+        register BYTE prefixStep = prefixWidth / prefixLen;
+        blank.width = (prefixStep >> rowConfig->double_width) - rowConfig->tracking;
+        while(prefixLen--)
         {
-            blank.width = width - textWidth - (rowConfig->tracking << rowConfig->double_width);
-            if(alignment == ALIGN_CENTER)
+            if(prefixLen > 0)
             {
-                if((len - strlen(str)) % 2)
-                {
-                    // correct odd string len alignment
-                    blank.width += (OSD_FONT_CHAR_WIDTH + rowConfig->tracking);
-                }
-                blank.width /= 2;
-            }
-            textWidth += (blank.width + rowConfig->tracking);
-            blank.width >>= rowConfig->double_width;            // double width doubles space width too
-            OSD_write(address, _OSD_BYTE_ALL, 3, blank);
-        }
-        // suffix
-        if(alignment == ALIGN_LEFT || alignment == ALIGN_CENTER)
-        {
-            if(isLast)
-            {
-                blank.width = width - textWidth;
+                prefixWidth -= prefixStep;
             }
             else
             {
-                blank.width = width - textWidth - (rowConfig->tracking << rowConfig->double_width);
+                // last blank corrects floor-ing
+                blank.width = (prefixWidth >> rowConfig->double_width) - rowConfig->tracking;
             }
-            blank.width >>= rowConfig->double_width;            // double width doubles space width too
-            OSD_write(address + len - 1, _OSD_BYTE_ALL, 3, blank);
+            OSD_write(addr++, _OSD_BYTE_ALL, 3, blank);
         }
     }
+
+    // suffix
+    if(suffixLen)
+    {
+        register BYTE suffixStep = suffixWidth / suffixLen;
+        blank.width = (suffixStep >> rowConfig->double_width) - rowConfig->tracking;
+        while(suffixLen--)
+        {
+            if(suffixLen > 0)
+            {
+                suffixWidth -= suffixStep;
+            }
+            else
+            {
+                // last blank corrects floor-ing
+                if(isLast)
+                {
+                    // last area in the row has no tracking space
+                    blank.width = (suffixWidth >> rowConfig->double_width);
+                }
+                else
+                {
+                    blank.width = (suffixWidth >> rowConfig->double_width) - rowConfig->tracking;
+                }
+            }
+            OSD_write(ptr++, _OSD_BYTE_ALL, 3, blank);
+        }
+    }
+    #ifdef DEBUG
+    if(textWidth > width)
+    {
+        DSTR("!===");
+        DSTR("Text width exceeds area width");
+        DVAR(width);
+        DVAR(textWidth);
+    }
+    #endif
 }
 //-----------------------------------------------------------------------------
 void CFontArea::print(const char *_str)

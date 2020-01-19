@@ -275,8 +275,6 @@ public:
 //-----------------------------------------------------------------------------
 class CFontRow
 {
-private:
-    CFontArea* addArea(WORD left, WORD width, BYTE charsCount, const FontAreaStyle& style);
 public:
     BYTE areasCount;
     WORD nextLeft;      // absolete next area left position in px
@@ -285,7 +283,8 @@ public:
     CFontRow();
     void* operator new(size_t count);
     CFontArea* addArea(WORD left, WORD width, const char* str, const FontAreaStyle& style);
-    CFontArea* addArea(WORD left, FontAreaStyle& style, BYTE charsCount, char bodyChar = 0, char firstChar = 0, char lastChar = 0);
+    CFontArea* addArea(WORD left, WORD width, BYTE charsCount, const FontAreaStyle& style);
+    CFontArea* addArea(WORD left, FontAreaStyle& style, BYTE charsCount, char bodyChar, char firstChar = 0, char lastChar = 0);
 };
 //-----------------------------------------------------------------------------
 class CFontMap
