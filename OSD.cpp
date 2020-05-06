@@ -689,8 +689,12 @@ void CFontArea::output(const char *_str)
     #endif
 }
 //-----------------------------------------------------------------------------
-void CFontArea::print(const char *_str)
+void CFontArea::print(const char *_str, char newFontFace)
 {
+    if(newFontFace >= 0)
+    {
+        font = registeredFonts[(BYTE)newFontFace];
+    }
     str = (char*) realloc(str, strlen(_str) + 1);
     strcpy(str, _str);
     output((const char*)str);

@@ -256,7 +256,7 @@ public:
     void hide();
     void show();
     void blink();
-    void print(const char *_str);
+    void print(const char *_str, char newFontFace = -1);
     friend CFontMap;
 };
 //-----------------------------------------------------------------------------
