@@ -248,10 +248,13 @@ class CFontAreaSet
 {
 protected:
     CFontArea** areas;
+    CFontAreaSet** sets;
     BYTE areasCount;
+    BYTE setsCount;
 public:
     CFontAreaSet();
     CFontArea* add(CFontArea* area);
+    CFontAreaSet* add(CFontAreaSet& set);
     void hide();
     void show();
     void blink();

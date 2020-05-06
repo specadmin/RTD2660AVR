@@ -739,11 +739,23 @@ CFontArea* CFontAreaSet::add(CFontArea* area)
     return area;
 }
 //-----------------------------------------------------------------------------
+CFontAreaSet* CFontAreaSet::add(CFontAreaSet& set)
+{
+    sets = (CFontAreaSet**) realloc(sets, sizeof(CFontAreaSet*) * (setsCount + 1));
+    sets[setsCount++] = &set;
+    return this;
+}
+//-----------------------------------------------------------------------------
 void CFontAreaSet::hide()
 {
     for(BYTE i=0; i < areasCount; i++)
     {
         areas[i]->hide();
+    }
+
+    for(BYTE i=0; i < setsCount; i++)
+    {
+        sets[i]->hide();
     }
 }
 //-----------------------------------------------------------------------------
@@ -753,6 +765,11 @@ void CFontAreaSet::show()
     {
         areas[i]->show();
     }
+
+    for(BYTE i=0; i < setsCount; i++)
+    {
+        sets[i]->show();
+    }
 }
 //-----------------------------------------------------------------------------
 void CFontAreaSet::blink()
@@ -760,6 +777,11 @@ void CFontAreaSet::blink()
     for(BYTE i=0; i < areasCount; i++)
     {
         areas[i]->blink();
+    }
+
+    for(BYTE i=0; i < setsCount; i++)
+    {
+        sets[i]->blink();
     }
 }
 //-----------------------------------------------------------------------------
