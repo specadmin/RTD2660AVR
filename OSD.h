@@ -99,22 +99,6 @@
 #define ALIGN_CENTER        2
 #define ALIGN_JUSTIFY       3
 //-----------------------------------------------------------------------------
-enum FontDrawings
-{
-    MG_BLANK = 1,
-    MG_FILL,
-    MG_6PXSKIP,
-    MG_RD25pxBL,
-    MG_RD25pxBR,
-    MG_RD25pxTL,
-    MG_RD25pxTR,
-    MG_RD8pxBL,
-    MG_RD8pxBR,
-    MG_RD8pxTL,
-    MG_RD8pxTR,
-    MG_DEGREE,
-};
-//-----------------------------------------------------------------------------
 enum WindowStyle
 {
     WS_PLAIN = 0,
