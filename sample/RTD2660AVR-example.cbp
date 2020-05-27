@@ -1,0 +1,169 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes" ?>
+<CodeBlocks_project_file>
+	<FileVersion major="1" minor="6" />
+	<Project>
+		<Option title="RTD2660AVR-example" />
+		<Option pch_mode="2" />
+		<Option compiler="avr-gcc" />
+		<Build>
+			<Target title="ATmega88pa">
+				<Option output="bin/$(PROJECTNAME).elf" prefix_auto="1" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="." />
+				<Option type="5" />
+				<Option compiler="avr-gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-D__AVR_ATmega88PA__" />
+					<Add directory="include" />
+				</Compiler>
+				<Environment>
+					<Variable name="LFUSE" value="0xEF" />
+					<Variable name="MCU" value="atmega88p" />
+				</Environment>
+			</Target>
+			<Target title="ATmega328p">
+				<Option output="bin/$(PROJECTNAME).elf" prefix_auto="1" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="." />
+				<Option type="5" />
+				<Option compiler="avr-gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-D__AVR_ATmega328P__" />
+					<Add directory="include" />
+				</Compiler>
+				<Environment>
+					<Variable name="LFUSE" value="0xDA" />
+					<Variable name="MCU" value="atmega328p" />
+				</Environment>
+			</Target>
+			<Target title="ATmega32u4">
+				<Option output="bin/$(PROJECTNAME).elf" prefix_auto="1" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="." />
+				<Option type="5" />
+				<Option compiler="avr-gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-D__AVR_ATmega32U4__" />
+					<Add directory="include" />
+				</Compiler>
+				<Environment>
+					<Variable name="MCU" value="atmega32u4" />
+				</Environment>
+			</Target>
+			<Target title="ATmega1284p">
+				<Option output="bin/$(PROJECTNAME).elf" prefix_auto="1" extension_auto="0" />
+				<Option working_dir="" />
+				<Option object_output="." />
+				<Option type="5" />
+				<Option compiler="avr-gcc" />
+				<Compiler>
+					<Add option="-g" />
+					<Add option="-D__AVR_ATmega1284P__" />
+					<Add directory="include" />
+				</Compiler>
+				<Environment>
+					<Variable name="MCU" value="atmega1284p" />
+				</Environment>
+			</Target>
+			<Environment>
+				<Variable name="ADAPTER" value="usbasp" />
+			</Environment>
+		</Build>
+		<Compiler>
+			<Add option="-O" />
+			<Add option="-Wextra" />
+			<Add option="-Wall" />
+			<Add option="-std=c++11" />
+			<Add option="-x c++" />
+			<Add option="-save-temps=obj" />
+			<Add option="-mmcu=$(MCU)" />
+			<Add option="-DF_CPU=16000000UL" />
+			<Add option="-DRTD_XTAL=27000000UL" />
+			<Add option="-DM2PLL_XTAL=12000000UL" />
+			<Add option="-DDEBUG" />
+			<Add directory="include" />
+			<Add directory="lib" />
+			<Add directory="." />
+		</Compiler>
+		<Linker>
+			<Add option="-mmcu=$(MCU)" />
+			<Add option="-nodefaultlibs" />
+			<Add option="-Wl,-Map=$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).map" />
+			<Add option="-Wl,--section-start=.eeprog=0x00810000" />
+			<Add option="-Wl,--section-start=.eeprom=0x00810010" />
+			<Add library="c" />
+			<Add library="gcc" />
+			<Add library="$MCU" />
+		</Linker>
+		<ExtraCommands>
+			<Add after="avr-objdump -dS $(TARGET_OUTPUT_FILE) &gt; $(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).asm" />
+			<Add after="avr-strip --strip-debug -R .comment $(TARGET_OUTPUT_FILE)" />
+			<Add after="# avr-objcopy -j .eeprom --change-section-lma .eeprom=0 -O ihex $(TARGET_OUTPUT_FILE) $(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).eep" />
+			<Add after="avr-objcopy -R .eeprom -R .fuse -R .lock -R .signature -O ihex $(TARGET_OUTPUT_FILE) $(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).hex" />
+			<Add after="avr-objdump -xC $(TARGET_OUTPUT_FILE) &gt; $(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dump" />
+			<Add after='grep -m1 &quot;.text  &quot; $(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).map &gt; $(TARGET_OUTPUT_DIR).text' />
+			<Add after='grep -A 35 &quot;00000000&quot; $(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).asm &gt;&gt; $(TARGET_OUTPUT_DIR).text' />
+			<Add after='grep &quot;F .text&quot; $(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).dump | sort &gt;&gt; $(TARGET_OUTPUT_DIR).text' />
+			<Add after="pwd" />
+			<Add after="avr-size -dBt --common `find . -name &apos;*.o&apos;`" />
+			<Add after="avr-size -C --mcu=$(MCU) -d $(TARGET_OUTPUT_FILE)" />
+		</ExtraCommands>
+		<Unit filename="fonts/font-basic.h" />
+		<Unit filename="fonts/font-graphics.h" />
+		<Unit filename="include/LCD_power.h" />
+		<Unit filename="include/config.h" />
+		<Unit filename="include/fonts.h" />
+		<Unit filename="lib/RTD2660AVR/OSD.cpp" />
+		<Unit filename="lib/RTD2660AVR/OSD.h" />
+		<Unit filename="lib/RTD2660AVR/PLL.cpp" />
+		<Unit filename="lib/RTD2660AVR/PLL.h" />
+		<Unit filename="lib/RTD2660AVR/RTD2660_SPI.h" />
+		<Unit filename="lib/RTD2660AVR/colors.h" />
+		<Unit filename="lib/RTD2660AVR/display.cpp" />
+		<Unit filename="lib/RTD2660AVR/display.h" />
+		<Unit filename="lib/RTD2660AVR/panel.h" />
+		<Unit filename="lib/RTD2660AVR/panels/TM060RDH01.h" />
+		<Unit filename="lib/RTD2660AVR/registers.h" />
+		<Unit filename="lib/RTD2660AVR/registers/common.h" />
+		<Unit filename="lib/RTD2660AVR/registers/page0_ADC.h" />
+		<Unit filename="lib/RTD2660AVR/registers/page1_PLL.h" />
+		<Unit filename="lib/RTD2660AVR/registers/page2_HDMI.h" />
+		<Unit filename="lib/RTD2660AVR/registers/page3_LiveShow.h" />
+		<Unit filename="lib/RTD2660AVR/registers/page4_SDRAM.h" />
+		<Unit filename="lib/RTD2660AVR/registers/page5_SDRF.h" />
+		<Unit filename="lib/RTD2660AVR/registers/page6_Deinterlace.h" />
+		<Unit filename="lib/RTD2660AVR/registers/page7_VividColor.h" />
+		<Unit filename="lib/RTD2660AVR/registers/page8_VideoDecoder.h" />
+		<Unit filename="lib/RTD2660AVR/registers/page9_VideoDecoder.h" />
+		<Unit filename="lib/RTD2660AVR/registers/pageA_VideoDecoder.h" />
+		<Unit filename="lib/RTD2660AVR/registers/pageB_SyncProc.h" />
+		<Unit filename="lib/RTD2660AVR/registers/pageD_MCU1.h" />
+		<Unit filename="lib/RTD2660AVR/registers/pageE_MCU2.h" />
+		<Unit filename="lib/RTD2660AVR/registers/pageF_MCU3.h" />
+		<Unit filename="lib/RTD2660AVR/scaler.cpp" />
+		<Unit filename="lib/RTD2660AVR/scaler.h" />
+		<Unit filename="lib/RTD2660AVR/structure.h" />
+		<Unit filename="lib/RTD2660AVR/structures/little-endian-LSB.h" />
+		<Unit filename="lib/avr-debug/RAM_guard.cpp" />
+		<Unit filename="lib/avr-debug/RAM_guard.h" />
+		<Unit filename="lib/avr-debug/debug.cpp" />
+		<Unit filename="lib/avr-debug/debug.h" />
+		<Unit filename="lib/avr-debug/debug_def.h" />
+		<Unit filename="lib/avr-misc/avr-common.h" />
+		<Unit filename="lib/avr-misc/avr-delay.h" />
+		<Unit filename="lib/avr-misc/avr-interrupts.h" />
+		<Unit filename="lib/avr-misc/avr-misc.cpp" />
+		<Unit filename="lib/avr-misc/avr-misc.h" />
+		<Unit filename="lib/avr-misc/macro.h" />
+		<Unit filename="main.cpp" />
+		<Extensions>
+			<code_completion />
+			<envvars />
+			<lib_finder disable_auto="1" />
+			<debugger />
+		</Extensions>
+	</Project>
+</CodeBlocks_project_file>

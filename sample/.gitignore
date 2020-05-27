@@ -1,0 +1,10 @@
+/.project
+/bin
+*.save
+*.ii
+*.o
+*.s
+*.bak
+*.layout
+*.hex
+*.depend
