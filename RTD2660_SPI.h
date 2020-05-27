@@ -23,10 +23,8 @@ __inline void RTD2660_SPI_init()
     set_bit(RTD_CS_DDR, RTD_CS_BIT);
 }
 //-----------------------------------------------------------------------------
-__inline BYTE RTD2660_SPI_send_bit(BYTE value)
+__inline void RTD2660_SPI_send_bit(BYTE value)
 {
-    static BYTE read;
-    read = RTD_RX_DATA;
     if(value)
     {
         set_bit(RTD_TX_PORT, RTD_TX_BIT);
@@ -34,8 +32,14 @@ __inline BYTE RTD2660_SPI_send_bit(BYTE value)
     else
     {
         clr_bit(RTD_TX_PORT, RTD_TX_BIT);
-        delay_cycles(2);    // выравниваем задержку
     }
+    RTD_toggle_clk();
+}
+//-----------------------------------------------------------------------------
+__inline BYTE RTD2660_SPI_get_bit()
+{
+    static BYTE read;
+    read = RTD_RX_DATA;
     RTD_toggle_clk();
     return read;
 }
@@ -66,7 +70,7 @@ __inline void RTD2660_SPI_read(BYTE address, BYTE count, BYTE *data, bool auto_i
     {
         for(BYTE i = 0; i < 8; i++)
         {
-            tmp = (tmp >> 1) | (RTD2660_SPI_send_bit(1) << 7);
+            tmp = (tmp >> 1) | (RTD2660_SPI_get_bit() << 7);
         }
         data[pos++] = tmp;
     }
