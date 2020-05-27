@@ -67,7 +67,9 @@
 #define OSD_FONT_MIN_CHAR_WIDTH     4
 #define OSD_FONT_MAX_CHAR_WIDTH     14
 
-#define OSD_MAX_ROWS_COUNT          24
+#ifndef OSD_MAX_ROWS_COUNT
+    #define OSD_MAX_ROWS_COUNT      24
+#endif
 //-----------------------------------------------------------------------------
 // row styles
 #define RS_DOUBLE_HEIGHT    _bits(0)
