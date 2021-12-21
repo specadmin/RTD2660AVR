@@ -1,6 +1,6 @@
-# RTD2660 LCD controller driver for using in AVR MCU #
+# RTD2660 LCD controller driver for using with AVR MCU #
 
-This is an open-source library for dealing with RTD2660 or RTD2662 display and OSD controllers from your AVR project. It was designed to provide a high-level interface in order to simplify developers work and to give an opportunity to design and create low-cost devices with LCDs up to FullHD size.
+This is an open-source library for dealing with RTD2660 or RTD2662 display and OSD controllers from your AVR project. It was designed to provide a high-level interface in order to simplify developers work and to give an opportunity to design and create low-cost OSD devices with LCDs up to FullHD size.
 
 
 ## Hardware connections ##
