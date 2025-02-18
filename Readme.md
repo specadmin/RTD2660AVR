@@ -27,7 +27,7 @@ The following hardware was used in this sample project:
 ### Compile ###
 
 ```
-git clone https://github.com/specadmin/RTD2660AVR
+git clone https://github.com/coucouillu/RTD2660AVR
 cd RTD2660AVR
 git submodule update --init
 cd sample
